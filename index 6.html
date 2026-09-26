@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>瓯江诗路｜文学景观互动地图</title>
+<meta name="description" content="瓯江诗路——温州楠溪江与丽水瓯江上游文学景观互动地图，收录诗词与文旅信息。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   设计系统：瓯江诗路 —— 全新界面设计
+   核心理念：保留古风韵味 + 现代交互体验
+   ============================================================ */
+
+/* ---- 色彩系统 ---- */
+:root{
+  /* 主色板 - 从传统中国色中提取 */
+  --ink-deep: #2a2018;        /* 浓墨 */
+  --ink: #3d2f22;             /* 墨色 */
+  --ink-soft: #6b5b48;        /* 淡墨 */
+  --ink-muted: #9a8a78;       /* 灰墨 */
+  --paper-deep: #d4c5a5;      /* 古纸深 */
+  --paper: #ebe0c8;           /* 古纸 */
+  --paper-light: #f5eede;     /* 宣纸 */
+  --paper-bright: #faf6ed;    /* 亮纸 */
+  --red-deep: #6e1512;        /* 朱砂深 */
+  --red: #8f211c;             /* 朱砂 */
+  --red-soft: #b54036;        /* 朱砂浅 */
+  --red-muted: #d48a82;       /* 淡朱砂 */
+  --jade-deep: #2d5549;       /* 青玉深 */
+  --jade: #4a7a6d;            /* 青玉 */
+  --jade-soft: #6e9e91;       /* 青玉浅 */
+  --gold-deep: #7a5a2a;       /* 泥金深 */
+  --gold: #a67c38;            /* 泥金 */
+  --gold-soft: #c9a86a;       /* 泥金浅 */
+  --border: rgba(119, 95, 62, 0.25);
+  --border-light: rgba(119, 95, 62, 0.12);
+
+  /* 阴影系统 */
+  --shadow-sm: 0 2px 8px rgba(42, 32, 24, 0.08);
+  --shadow: 0 8px 28px rgba(42, 32, 24, 0.12);
+  --shadow-lg: 0 18px 48px rgba(42, 32, 24, 0.18);
+  --shadow-xl: 0 28px 68px rgba(42, 32, 24, 0.22);
+
+  /* 字体 */
+  --font-brush: "Ma Shan Zheng", "Noto Serif SC", serif;
+  --font-serif: "Noto Serif SC", "Songti SC", serif;
+  --font-sans: "Noto Sans SC", "PingFang SC", sans-serif;
+
+  /* 动画 */
+  --ease-out: cubic-bezier(0.22, 0.68, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 0.2s;
+  --duration-normal: 0.35s;
+  --duration-slow: 0.55s;
+
+  box-sizing: border-box;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+  min-height:100%;
+  scroll-behavior:smooth;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+body{
+  color:var(--ink);
+  font-family:var(--font-serif);
+  background:var(--paper);
+  overflow-x:hidden;
+}
+
+/* ---- 全局纹理背景 ---- */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1000;
+  opacity:0.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+
+/* ============================================================
+   第1层：首页 - 全新英雄区 + 大地图
+   ============================================================ */
+.home{
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ---- 顶部导航栏 ---- */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 clamp(16px, 4vw, 40px);
+  height:64px;
+  background:rgba(235, 224, 200, 0.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-light);
+  transition:box-shadow var(--duration-fast);
+}
+.topbar.scrolled{box-shadow:var(--shadow-sm)}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.brand-mark{
+  width:36px;
+  height:36px;
+  border:2px solid var(--red);
+  color:var(--red);
+  font-family:var(--font-brush);
+  font-size:1.15rem;
+  display:grid;
+  place-items:center;
+  transform:rotate(-3deg);
+  flex:none;
+}
+.brand-text{
+  font-family:var(--font-brush);
+  font-size:1.15rem;
+  color:var(--red);
+  letter-spacing:0.12em;
+}
+
+.topbar-nav{
+  display:flex;
+  gap:6px;
+}
+.nav-btn{
+  padding:7px 16px;
+  border:1px solid transparent;
+  background:none;
+  color:var(--ink-soft);
+  font-family:var(--font-sans);
+  font-size:0.8rem;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all var(--duration-fast);
+}
+.nav-btn:hover{color:var(--ink)}
+.nav-btn.active{
+  background:rgba(143, 33, 28, 0.08);
+  border-color:rgba(143, 33, 28, 0.2);
+  color:var(--red);
+  font-weight:600;
+}
+
+/* ---- 英雄区（Hero）---- */
+.hero{
+  padding:clamp(40px, 8vh, 80px) clamp(20px, 5vw, 60px) clamp(30px, 5vh, 50px);
+  text-align:center;
+  position:relative;
+}
+
+.hero-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  color:var(--gold);
+  font-family:var(--font-sans);
+  font-size:0.72rem;
+  letter-spacing:0.35em;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.hero-kicker::before,
+.hero-kicker::after{
+  content:"";
+  width:30px;
+  height:1px;
+  background:var(--gold-soft);
+}
+
+.hero h1{
+  font-family:var(--font-brush);
+  font-size:clamp(2.8rem, 7vw, 5.2rem);
+  font-weight:400;
+  letter-spacing:0.18em;
+  color:var(--red);
+  line-height:1;
+  margin-bottom:8px;
+}
+
+.hero-subtitle{
+  font-family:var(--font-serif);
+  font-size:clamp(0.95rem, 2vw, 1.35rem);
+  font-weight:600;
+  letter-spacing:0.3em;
+  color:var(--ink);
+  margin-bottom:14px;
+}
+
+.hero-desc{
+  max-width:560px;
+  margin:0 auto;
+  font-family:var(--font-sans);
+  font-size:clamp(0.78rem, 1.5vw, 0.9rem);
+  line-height:2;
+  color:var(--ink-soft);
+}
+.hero-desc span{color:var(--red-soft)}
+
+/* ---- 地图容器 ---- */
+.map-area{
+  flex:1;
+  padding:0 clamp(12px, 3vw, 40px) clamp(20px, 4vh, 40px);
+  max-width:1200px;
+  margin:0 auto;
+  width:100%;
+}
+
+.map-frame{
+  position:relative;
+  background:linear-gradient(145deg, #c9b590, #e0d2b3 15%, #dccba5 85%, #bfaa7a);
+  border:1px solid rgba(119, 95, 62, 0.35);
+  border-radius:16px;
+  padding:10px;
+  box-shadow:var(--shadow-lg);
+}
+.map-frame::before{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border:1px solid rgba(103, 73, 37, 0.2);
+  border-radius:12px;
+  pointer-events:none;
+}
+
+.map-viewport{
+  position:relative;
+  width:100%;
+  aspect-ratio:1352/784;
+  min-height:420px;
+  overflow:hidden;
+  border:1px solid rgba(91, 67, 39, 0.3);
+  border-radius:8px;
+  background:#d9c9a5;
+}
+
+/* 山水画地图底图 */
+.map-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  pointer-events:none;
+  user-select:none;
+}
+.map-svg .river-path{
+  fill:none;
+  stroke:url(#riverGrad);
+  stroke-width:38;
+  stroke-linecap:round;
+  filter:url(#riverShadow);
+}
+.map-svg .river-inner{
+  fill:none;
+  stroke:url(#riverInner);
+  stroke-width:18;
+  stroke-linecap:round;
+  opacity:0.7;
+}
+.map-svg .mountain-far{
+  fill:url(#mtFar);
+  opacity:0.45;
+}
+.map-svg .mountain-mid{
+  fill:url(#mtMid);
+  opacity:0.65;
+}
+.map-svg .mountain-near{
+  fill:url(#mtNear);
+  opacity:0.85;
+}
+.map-svg .bank{
+  fill:#c4b285;
+  opacity:0.6;
+}
+.map-svg .cloud{
+  fill:#f5eede;
+  opacity:0.85;
+  filter:url(#cloudBlur);
+}
+.map-svg .bridge{
+  fill:none;
+  stroke:#8a6d3f;
+  stroke-width:3;
+  stroke-linecap:round;
+}
+.map-svg .bridge-arch{
+  fill:none;
+  stroke:#a08050;
+  stroke-width:2;
+}
+.map-svg .pagoda{
+  fill:#6b4e2a;
+}
+.map-svg .pagoda-roof{
+  fill:#4a3520;
+}
+.map-svg .tree{
+  fill:#4d7a50;
+}
+.map-svg .tree-trunk{
+  fill:#5a3f22;
+}
+.map-svg .person{
+  fill:#3d5a70;
+}
+.map-svg .compass-svg{
+  fill:none;
+  stroke:#6b4e2a;
+  stroke-width:1.2;
+}
+.map-svg .compass-needle{
+  fill:#8f211c;
+}
+
+/* 地图标题 */
+.map-corner-title{
+  position:absolute;
+  left:3%;
+  top:5%;
+  z-index:3;
+  color:var(--red-deep);
+  font-family:var(--font-brush);
+  font-size:clamp(1.4rem, 3.5vw, 2.4rem);
+  line-height:1.2;
+  letter-spacing:0.12em;
+  text-shadow:0 1px 0 rgba(242, 229, 202, 0.9);
+  pointer-events:none;
+}
+.map-corner-title small{
+  display:block;
+  font-family:var(--font-serif);
+  font-size:0.42em;
+  letter-spacing:0.25em;
+  color:var(--ink-soft);
+  margin-top:6px;
+}
+
+/* 地理标签 */
+.map-label{
+  position:absolute;
+  z-index:2;
+  color:var(--red-deep);
+  font-family:var(--font-sans);
+  font-size:clamp(0.6rem, 1.2vw, 0.8rem);
+  font-weight:600;
+  letter-spacing:0.1em;
+  white-space:nowrap;
+  text-shadow:0 1px 0 rgba(245, 233, 207, 0.9);
+  pointer-events:none;
+}
+.map-label.city{
+  font-size:clamp(0.85rem, 1.8vw, 1.15rem);
+  font-weight:700;
+  letter-spacing:0.2em;
+}
+.map-label.river{
+  font-family:var(--font-brush);
+  font-size:clamp(1rem, 2.2vw, 1.5rem);
+  color:var(--jade);
+  letter-spacing:0.25em;
+}
+.map-label.vertical{
+  writing-mode:vertical-rl;
+  letter-spacing:0.18em;
+}
+
+/* 标记点 - 全新印章设计 */
+.map-marker{
+  position:absolute;
+  transform:translate(-50%, -50%);
+  border:0;
+  background:none;
+  padding:0;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  z-index:5;
+}
+
+.seal{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:var(--red);
+  color:#f5e7c9;
+  border:2.5px solid rgba(246, 225, 183, 0.92);
+  box-shadow:
+    0 2px 8px rgba(55, 30, 22, 0.28),
+    0 0 0 4px rgba(143, 33, 28, 0.1);
+  font-family:var(--font-brush);
+  font-size:13px;
+  transition:all var(--duration-fast) var(--ease-out);
+  position:relative;
+}
+.map-marker.draft .seal{
+  background:var(--jade);
+  box-shadow:
+    0 2px 8px rgba(30, 55, 45, 0.28),
+    0 0 0 4px rgba(74, 122, 109, 0.1);
+}
+
+/* 脉冲动画 - 吸引注意力 */
+.seal::after{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  border-radius:50%;
+  border:1.5px solid var(--red);
+  opacity:0;
+  animation:pulse 2.5s ease-out infinite;
+}
+.map-marker.draft .seal::after{border-color:var(--jade)}
+@keyframes pulse{
+  0%{transform:scale(0.8);opacity:0.6}
+  100%{transform:scale(1.6);opacity:0}
+}
+
+.map-marker:hover .seal,
+.map-marker:focus-visible .seal{
+  transform:scale(1.15);
+  box-shadow:
+    0 4px 14px rgba(55, 30, 22, 0.35),
+    0 0 0 6px rgba(143, 33, 28, 0.08);
+}
+
+/* 标记提示 */
+.marker-name{
+  margin-top:6px;
+  padding:4px 10px;
+  background:rgba(248, 238, 214, 0.96);
+  border:1px solid rgba(132, 90, 48, 0.3);
+  border-radius:6px;
+  color:var(--ink);
+  font-family:var(--font-sans);
+  font-size:0.68rem;
+  font-weight:500;
+  letter-spacing:0.06em;
+  white-space:nowrap;
+  opacity:0;
+  transform:translateY(-4px);
+  transition:all var(--duration-fast) var(--ease-out);
+  box-shadow:var(--shadow-sm);
+  pointer-events:none;
+}
+.map-marker:hover .marker-name,
+.map-marker:focus-visible .marker-name{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* 地图底部信息 */
+.map-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 8px 2px;
+  font-family:var(--font-sans);
+  font-size:0.72rem;
+  color:var(--ink-soft);
+}
+.map-route{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.map-route span{color:var(--red);font-weight:600}
+.map-guide-btn{
+  border:1px solid rgba(143, 33, 28, 0.35);
+  background:rgba(143, 33, 28, 0.06);
+  color:var(--red);
+  font-family:var(--font-sans);
+  font-size:0.72rem;
+  padding:5px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all var(--duration-fast);
+}
+.map-guide-btn:hover{
+  background:rgba(143, 33, 28, 0.12);
+}
+
+/* ---- 介绍卡片 ---- */
+.intro-card{
+  max-width:960px;
+  margin:clamp(16px, 3vh, 28px) auto 0;
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  padding:18px 22px;
+  background:var(--paper-bright);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow-sm);
+}
+.intro-icon{
+  width:44px;
+  height:44px;
+  flex:none;
+  border:2px solid var(--red);
+  color:var(--red);
+  display:grid;
+  place-items:center;
+  font-family:var(--font-brush);
+  font-size:1.4rem;
+  border-radius:10px;
+  transform:rotate(-3deg);
+}
+.intro-content h2{
+  font-family:var(--font-brush);
+  font-size:1.25rem;
+  font-weight:400;
+  letter-spacing:0.08em;
+  color:var(--red);
+  margin-bottom:5px;
+}
+.intro-content p{
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  line-height:1.85;
+  color:var(--ink-soft);
+}
+
+/* ---- 图例 ---- */
+.legend-bar{
+  max-width:960px;
+  margin:14px auto 0;
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  flex-wrap:wrap;
+  font-family:var(--font-sans);
+  font-size:0.68rem;
+  color:var(--ink-soft);
+}
+.legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.legend-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+}
+.legend-dot.detailed{background:var(--red);border:1.5px solid var(--red-deep)}
+.legend-dot.draft{background:var(--jade);border:1.5px solid var(--jade-deep)}
+
+/* ---- 页脚 ---- */
+.site-footer{
+  padding:24px 20px 40px;
+  text-align:center;
+  font-family:var(--font-sans);
+  font-size:0.68rem;
+  color:var(--ink-muted);
+  letter-spacing:0.08em;
+}
+
+/* ============================================================
+   第2层：沉浸式景点页（全屏）
+   ============================================================ */
+.scene-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(30, 22, 14, 0.55);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity var(--duration-normal) var(--ease-out);
+  z-index:200;
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+}
+.scene-overlay.open{opacity:1;pointer-events:auto}
+
+.scene-page{
+  position:fixed;
+  inset:0;
+  z-index:210;
+  background:var(--paper-light);
+  overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform var(--duration-slow) var(--ease-out);
+}
+.scene-page.open{transform:translateY(0)}
+
+/* 景点页顶栏 */
+.scene-header{
+  position:sticky;
+  top:0;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 clamp(16px, 4vw, 32px);
+  height:64px;
+  background:rgba(247, 240, 223, 0.95);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+
+.scene-back{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 16px;
+  border:1px solid var(--border);
+  background:var(--paper-bright);
+  color:var(--ink);
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all var(--duration-fast);
+}
+.scene-back:hover{
+  border-color:var(--red-muted);
+  color:var(--red);
+}
+
+.scene-brand{
+  font-family:var(--font-brush);
+  color:var(--red);
+  font-size:1.2rem;
+  letter-spacing:0.14em;
+}
+
+.scene-close{
+  width:40px;
+  height:40px;
+  border:1px solid var(--border);
+  background:var(--paper-bright);
+  color:var(--ink);
+  font-size:1.1rem;
+  border-radius:50%;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:all var(--duration-fast);
+}
+.scene-close:hover{
+  border-color:var(--red-muted);
+  color:var(--red);
+  transform:rotate(90deg);
+}
+
+/* 景点页内容 */
+.scene-body{
+  max-width:1100px;
+  margin:0 auto;
+  padding:clamp(20px, 4vh, 40px) clamp(16px, 4vw, 40px) clamp(40px, 8vh, 80px);
+}
+
+.scene-title-area{
+  text-align:center;
+  margin-bottom:clamp(20px, 4vh, 36px);
+}
+
+.scene-tag{
+  display:inline-block;
+  font-family:var(--font-sans);
+  font-size:0.68rem;
+  color:var(--red);
+  letter-spacing:0.2em;
+  margin-bottom:10px;
+  padding:4px 14px;
+  border:1px solid rgba(143, 33, 28, 0.25);
+  border-radius:999px;
+  background:rgba(143, 33, 28, 0.04);
+}
+
+.scene-title-area h2{
+  font-family:var(--font-brush);
+  font-size:clamp(2rem, 5vw, 3.2rem);
+  font-weight:400;
+  letter-spacing:0.1em;
+  color:var(--ink-deep);
+  margin-bottom:8px;
+}
+
+.scene-title-area p{
+  font-family:var(--font-sans);
+  font-size:0.8rem;
+  color:var(--ink-muted);
+  letter-spacing:0.15em;
+}
+
+/* 景点大图 */
+.scene-hero{
+  position:relative;
+  width:100%;
+  height:clamp(280px, 50vh, 520px);
+  min-height:260px;
+  overflow:hidden;
+  border-radius:16px;
+  margin-bottom:clamp(20px, 4vh, 32px);
+  box-shadow:var(--shadow-lg);
+}
+.scene-hero img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.scene-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top, rgba(30,22,14,0.5) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.scene-hero-caption{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:clamp(16px, 3vw, 28px);
+  color:#fff;
+  font-family:var(--font-sans);
+  font-size:0.85rem;
+  line-height:1.7;
+  text-shadow:0 1px 6px rgba(0,0,0,0.4);
+  z-index:2;
+}
+
+/* 景点简介 */
+.scene-summary{
+  font-size:0.92rem;
+  line-height:2.2;
+  color:var(--ink-soft);
+  background:var(--paper-bright);
+  border:1px solid var(--border-light);
+  padding:clamp(16px, 3vw, 24px) clamp(18px, 3vw, 28px);
+  border-radius:14px;
+  margin-bottom:clamp(20px, 4vh, 32px);
+  position:relative;
+}
+.scene-summary::before{
+  content:"\"";
+  position:absolute;
+  top:8px;
+  left:16px;
+  font-family:var(--font-brush);
+  font-size:3rem;
+  color:var(--gold-soft);
+  opacity:0.4;
+  line-height:1;
+}
+
+/* 景点页标签页 */
+.scene-tabs{
+  display:flex;
+  justify-content:center;
+  gap:0;
+  margin:0 auto clamp(20px, 4vh, 32px);
+  max-width:640px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+
+.scene-tab{
+  flex:1;
+  padding:12px 10px;
+  border:0;
+  background:none;
+  color:var(--ink-soft);
+  font-family:var(--font-serif);
+  font-size:clamp(0.85rem, 1.8vw, 1rem);
+  cursor:pointer;
+  position:relative;
+  transition:color var(--duration-fast);
+}
+.scene-tab:hover{color:var(--ink)}
+.scene-tab.active{
+  color:var(--red);
+  font-weight:600;
+}
+.scene-tab.active::after{
+  content:"";
+  position:absolute;
+  left:25%;
+  right:25%;
+  bottom:-1px;
+  height:3px;
+  background:var(--red);
+  border-radius:4px 4px 0 0;
+}
+
+.scene-view{display:none}
+.scene-view.active{display:block;animation:fadeIn 0.4s var(--ease-out)}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* 详情页布局 */
+.detail-layout{
+  display:grid;
+  grid-template-columns:280px minmax(0, 1fr);
+  gap:28px;
+  align-items:start;
+}
+
+.detail-sidebar{
+  position:sticky;
+  top:80px;
+}
+.detail-sidebar-img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  border-radius:12px;
+  display:block;
+  margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+.detail-sidebar-note{
+  font-family:var(--font-sans);
+  font-size:0.72rem;
+  line-height:1.7;
+  color:var(--ink-muted);
+  padding:0 4px;
+}
+
+.detail-main{min-width:0}
+
+/* 内容标签页 */
+.content-tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+  padding-bottom:4px;
+}
+.content-tab{
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  padding:8px 16px;
+  border:1.5px solid transparent;
+  border-radius:999px;
+  background:none;
+  color:var(--ink-soft);
+  cursor:pointer;
+  transition:all var(--duration-fast);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.content-tab:hover{
+  color:var(--ink);
+  background:rgba(119, 95, 62, 0.06);
+}
+.content-tab.active{
+  color:var(--red);
+  background:rgba(143, 33, 28, 0.08);
+  border-color:rgba(143, 33, 28, 0.25);
+  font-weight:600;
+}
+.tab-icon{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:var(--red);
+  color:#fff;
+  font-size:0.65rem;
+  display:grid;
+  place-items:center;
+  font-family:var(--font-brush);
+}
+.content-tab.active .tab-icon{background:var(--red)}
+
+.content-panel{display:none}
+.content-panel.active{display:block;animation:fadeIn 0.35s var(--ease-out)}
+
+/* 诗词卡片 - 全新竖排书法设计 */
+.poem-card{
+  margin-bottom:20px;
+  padding:clamp(16px, 3vw, 24px);
+  border-radius:14px;
+  background:var(--paper-bright);
+  border:1px solid var(--border-light);
+  position:relative;
+  overflow:hidden;
+}
+.poem-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:4px;
+  height:100%;
+  background:linear-gradient(to bottom, var(--red), var(--gold-soft));
+}
+
+.poem-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+.poem-title{
+  font-family:var(--font-brush);
+  font-size:clamp(1.15rem, 2.5vw, 1.5rem);
+  font-weight:400;
+  color:var(--ink-deep);
+}
+.poem-meta{
+  font-family:var(--font-sans);
+  font-size:0.72rem;
+  color:var(--ink-muted);
+  padding:3px 10px;
+  background:var(--paper);
+  border-radius:999px;
+}
+
+/* 诗词正文 - 竖排模式（桌面端） */
+.poem-body{
+  display:flex;
+  gap:clamp(16px, 3vw, 28px);
+  flex-wrap:wrap;
+}
+
+.poem-verses{
+  flex:1;
+  min-width:200px;
+}
+.poem-verses p{
+  margin:0 0 6px;
+  line-height:2.2;
+  font-size:clamp(0.95rem, 1.8vw, 1.1rem);
+  letter-spacing:0.08em;
+  color:var(--ink);
+}
+
+.poem-note{
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  color:var(--ink-soft);
+  line-height:1.85;
+  padding:14px 16px;
+  background:rgba(212, 197, 165, 0.3);
+  border-radius:10px;
+  border-left:3px solid var(--gold-soft);
+  margin-top:12px;
+}
+
+.poem-photo{
+  width:clamp(180px, 30%, 280px);
+  flex:none;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.poem-photo img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.poem-photo .photo-cap{
+  padding:8px 12px;
+  font-family:var(--font-sans);
+  font-size:0.7rem;
+  color:var(--ink-muted);
+  background:var(--paper);
+  line-height:1.6;
+}
+
+/* 列表项卡片 */
+.item-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:14px;
+}
+.item-card{
+  padding:16px;
+  border-radius:12px;
+  background:var(--paper-bright);
+  border:1px solid var(--border-light);
+  transition:all var(--duration-fast);
+}
+.item-card:hover{
+  box-shadow:var(--shadow);
+  transform:translateY(-2px);
+}
+.item-card.has-img{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.item-card-img{
+  width:84px;
+  height:84px;
+  object-fit:cover;
+  border-radius:8px;
+  flex:none;
+}
+.item-card-title{
+  font-weight:600;
+  font-size:0.95rem;
+  color:var(--ink-deep);
+  margin-bottom:5px;
+}
+.item-card-desc{
+  font-family:var(--font-sans);
+  font-size:0.78rem;
+  color:var(--ink-soft);
+  line-height:1.7;
+}
+
+/* 空状态 */
+.empty-state{
+  text-align:center;
+  padding:clamp(30px, 8vh, 60px) 20px;
+  font-family:var(--font-sans);
+  font-size:0.85rem;
+  color:var(--ink-muted);
+  background:var(--paper-bright);
+  border:2px dashed var(--border);
+  border-radius:14px;
+}
+.empty-state .highlight{color:var(--jade);font-weight:600}
+
+/* 操作按钮 */
+.action-bar{
+  display:flex;
+  justify-content:center;
+  margin-top:28px;
+}
+.action-btn{
+  padding:12px 32px;
+  border:0;
+  background:var(--red);
+  color:#fff;
+  font-family:var(--font-serif);
+  font-size:0.92rem;
+  letter-spacing:0.1em;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(143, 33, 28, 0.25);
+  transition:all var(--duration-fast);
+}
+.action-btn:hover{
+  background:var(--red-deep);
+  transform:translateY(-2px);
+  box-shadow:0 10px 28px rgba(143, 33, 28, 0.3);
+}
+
+/* ============================================================
+   侧滑面板（备用，用于较简单的信息展示）
+   ============================================================ */
+.side-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(30, 22, 14, 0.4);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity var(--duration-normal);
+  z-index:150;
+}
+.side-overlay.open{opacity:1;pointer-events:auto}
+
+.side-panel{
+  position:fixed;
+  top:0;
+  right:0;
+  height:100%;
+  width:min(480px, 92vw);
+  background:var(--paper-light);
+  border-left:1px solid var(--border);
+  transform:translateX(100%);
+  transition:transform var(--duration-normal) var(--ease-out);
+  z-index:160;
+  overflow-y:auto;
+  padding:env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+  box-shadow:-20px 0 50px rgba(30, 22, 14, 0.15);
+}
+.side-panel.open{transform:translateX(0)}
+
+.side-panel-inner{padding:28px 24px 44px}
+
+.side-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:1rem;
+  margin-bottom:16px;
+}
+.side-tag{
+  font-family:var(--font-sans);
+  font-size:0.7rem;
+  color:var(--red);
+  letter-spacing:0.1em;
+  margin-bottom:4px;
+}
+.side-header h2{
+  font-family:var(--font-brush);
+  font-size:1.6rem;
+  font-weight:400;
+  letter-spacing:0.08em;
+  color:var(--ink-deep);
+}
+.side-close{
+  background:var(--paper-bright);
+  border:1px solid var(--border);
+  color:var(--ink);
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  font-size:1rem;
+  cursor:pointer;
+  flex:none;
+  transition:all var(--duration-fast);
+}
+.side-close:hover{
+  border-color:var(--red-muted);
+  color:var(--red);
+  transform:rotate(90deg);
+}
+
+/* ============================================================
+   响应式设计
+   ============================================================ */
+@media(max-width:768px){
+  .topbar{height:56px;padding:0 14px}
+  .brand-text{font-size:1rem}
+  .nav-btn{padding:6px 10px;font-size:0.72rem}
+
+  .hero{padding:28px 14px 24px}
+  .hero h1{font-size:2.6rem;letter-spacing:0.12em}
+  .hero-subtitle{font-size:0.88rem;letter-spacing:0.2em}
+
+  .map-viewport{aspect-ratio:3/4;min-height:480px}
+  .map-frame{padding:6px;border-radius:12px}
+
+  .seal{width:30px;height:30px;font-size:11px}
+  .marker-name{font-size:0.6rem;padding:3px 7px}
+
+  .intro-card{flex-direction:column;gap:12px;padding:14px 16px}
+  .intro-icon{width:38px;height:38px;font-size:1.15rem}
+  .intro-content h2{font-size:1.1rem}
+  .intro-content p{font-size:0.72rem}
+
+  .scene-header{height:56px;padding:0 14px}
+  .scene-back{padding:7px 12px;font-size:0.72rem}
+  .scene-brand{font-size:1rem}
+  .scene-close{width:36px;height:36px}
+
+  .scene-title-area h2{font-size:2rem}
+  .scene-hero{height:45vh;min-height:220px;border-radius:12px}
+  .scene-hero-caption{font-size:0.75rem;padding:14px 16px}
+
+  .detail-layout{grid-template-columns:1fr;gap:16px}
+  .detail-sidebar{position:static}
+  .detail-sidebar-img{height:180px}
+  .detail-sidebar-note{display:none}
+
+  .poem-body{flex-direction:column}
+  .poem-photo{width:100%;max-width:320px;margin:0 auto}
+  .item-grid{grid-template-columns:1fr}
+
+  .content-tab{font-size:0.72rem;padding:6px 12px}
+  .scene-tab{font-size:0.85rem;padding:10px 8px}
+}
+
+@media(max-width:480px){
+  .map-viewport{min-height:420px}
+  .hero h1{font-size:2.2rem}
+  .map-footer{flex-direction:column;align-items:flex-start;gap:6px}
+  .legend-bar{gap:12px}
+}
+
+/* ============================================================
+   无障碍与交互增强
+   ============================================================ */
+:focus-visible{
+  outline:2px solid var(--red);
+  outline-offset:2px;
+  border-radius:4px;
+}
+
+button{cursor:pointer;font-family:inherit}
+button:disabled{opacity:0.5;cursor:not-allowed}
+
+/* 滚动条美化 */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--paper-deep);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-muted)}
+
+/* 选中文本颜色 */
+::selection{
+  background:rgba(143, 33, 28, 0.2);
+  color:var(--ink-deep);
+}
+</style>
+</head>
+
+<body>
+
+<!-- ==================== 首页 ==================== -->
+<section class="home" id="home">
+  <!-- 顶部导航 -->
+  <header class="topbar" id="topbar">
+    <div class="brand">
+      <div class="brand-mark">诗</div>
+      <div class="brand-text">瓯江诗路</div>
+    </div>
+    <nav class="topbar-nav">
+      <button class="nav-btn active" data-nav="map">地图</button>
+      <button class="nav-btn" data-nav="poems">诗词</button>
+      <button class="nav-btn" data-nav="about">关于</button>
+    </nav>
+  </header>
+
+  <!-- 英雄区 -->
+  <div class="hero">
+    <div class="hero-kicker">OUJIANG POETRY ROUTE</div>
+    <h1>山水诗路</h1>
+    <p class="hero-subtitle">瓯江 · 文学景观互动地图</p>
+    <p class="hero-desc">
+      从<span>丽水</span>到<span>温州</span>，山水、古村、名人故里与诗词在一江之间相遇。<br>
+      点开地图上的印记，先看风景，再读诗文。
+    </p>
+  </div>
+
+  <!-- 地图区域 -->
+  <div class="map-area">
+    <div class="map-frame">
+            <div class="map-viewport" id="mapViewport">
+        <!-- 山水诗路 手绘风格地图底图 -->
+        <img class="map-bg" src="images/map-illustration.jpg" alt="山水诗路地图 · 丽水瓯江上游至温州楠溪江诗核">
+
+        <!-- 标记点容器 -->
+        <div class="map-hotspots" id="mapHotspots" aria-label="瓯江诗路地点印记"></div>
+      </div>
+<div class="map-footer">
+        <div class="map-route">丽水 · 瓯江上游 <span>→</span> 温州 · 楠溪江诗核</div>
+        <button class="map-guide-btn" id="mapGuideBtn" type="button">
+          ⌖ 双击地图聚焦
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 介绍卡片 -->
+  <div class="intro-card">
+    <div class="intro-icon">诗</div>
+    <div class="intro-content">
+      <h2>沿瓯江两岸，寻一条写进山水里的诗路</h2>
+      <p>从丽水到温州，山水、古村、名人故里与诗词在一江之间相遇。点开地图上的印记，先看风景，再读诗文。</p>
+    </div>
+  </div>
+
+  <!-- 图例 -->
+  <div class="legend-bar">
+    <span class="legend-item"><i class="legend-dot detailed"></i> 已收录文学景观</span>
+    <span class="legend-item"><i class="legend-dot draft"></i> 内容持续补充</span>
+    <span class="legend-item">诗词 · 美食 · 特产 · 非遗 · 景点</span>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer class="site-footer">
+  瓯江诗路文学景观留存与活态传播路径研究 · 互动地图原型
+</footer>
+
+<!-- ==================== 沉浸式景点页 ==================== -->
+<div class="scene-overlay" id="sceneOverlay"></div>
+<section class="scene-page" id="scenePage" aria-hidden="true">
+  <header class="scene-header">
+    <button class="scene-back" id="sceneBack">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      返回地图
+    </button>
+    <div class="scene-brand">瓯江诗路</div>
+    <button class="scene-close" id="sceneClose" aria-label="关闭">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </header>
+
+  <main class="scene-body" id="sceneBody"></main>
+</section>
+
+<!-- ==================== 侧滑面板（备用）==================== -->
+<div class="side-overlay" id="sideOverlay"></div>
+<aside class="side-panel" id="sidePanel" aria-hidden="true">
+  <div class="side-panel-inner" id="sidePanelInner"></div>
+</aside>
+
+<!-- ==================== 数据与脚本 ==================== -->
+<script>
+/* ============================================================
+   SITE_DATA —— 全站唯一数据源
+   ============================================================ */
+const SITE_DATA = [
+  {
+    id:"jiangxinyu", name:"江心屿", region:"温州", type:"山水胜景类 · 中国诗之岛",
+    x:76, y:38, status:"detailed",
+    heroImage:"images/chengxiange.jpg", heroCaption:"江心屿 · 澄鲜阁与瓯江风光",
+    summary:"瓯江入海口的江中孤屿，谢灵运登临留句后声名远播，历代帝王将相、文人墨客登临题咏千余首，是瓯江诗路最具代表性的诗文化岛屿；屿上双塔、古寺、亭阁与诗文一一对应，堪称一部立于江心的文学史。",
+    poems:[
+      { title:"登江中孤屿", author:"谢灵运", dynasty:"南朝宋",
+        lines:["江南倦历览，江北旷周旋。","怀新道转迥，寻异景不延。","乱流趋正绝，孤屿媚中川。","云日相辉映，空水共澄鲜。","表灵物莫赏，蕴真谁为传？","想象昆山姿，缅邈区中缘。","始信安期术，得尽养生年。"],
+        note:"「云日相辉映，空水共澄鲜」是孤屿最早也最著名的题咏，江心屿澄鲜阁之名即取自此句。",
+        photo:"images/chengxiange.jpg", photoCaption:"今日澄鲜阁——阁名即取自「云日相辉映，空水共澄鲜」" },
+      { title:"永嘉上浦馆逢张子容", author:"孟浩然", dynasty:"唐",
+        lines:["逆旅相逢处，江村日暮时。","众山遥对酒，孤屿共题诗。","廨宇邻蛟室，人烟接岛夷。","乡园万余里，失路一相悲。"],
+        note:"上浦馆旧临瓯江，「孤屿共题诗」一句，与谢灵运遥相唱和。" },
+      { title:"送裴虬作尉永嘉", author:"杜甫", dynasty:"唐",
+        lines:["孤屿亭何在？天涯水气中。","隐吏逢梅福，看山忆谢公。"],
+        note:"短短二十字将孤屿与谢灵运并提，可见盛唐时孤屿已因谢诗名满天下。" },
+      { title:"江心寺联", author:"王十朋", dynasty:"宋",
+        lines:["云朝朝朝朝朝朝朝朝散，潮长长长长长长长长消。"],
+        note:"此联悬于江心寺山门，八个「朝」字、八个「长」字读音各异，相传为温州籍状元王十朋所撰，是江心屿最负盛名的叠字楹联。" },
+      { title:"北归宿中川寺", author:"文天祥", dynasty:"宋",
+        lines:["万里风霜鬓已丝，飘零回首壮心悲。","罗浮山下雪来未，扬子江心月照谁。","只谓虎头非贵相，不图羝乳有归期。","乘潮一到中川寺，暗读中兴第二碑。"],
+        note:"文天祥兵败被俘、北归途中曾夜宿江心寺，「中兴第二碑」即指寺中所刻宋高宗手书。屿上至今存文天祥祠（信国公祠），浩然楼旧址即在祠前。" },
+      { title:"江心寺", author:"林景熙", dynasty:"宋",
+        lines:["佛借龙宫五百年，平分城树与村烟。","丛林忽涌中流地，双塔曾擎半壁天。","石色带云笼客袖，磬声和月落渔船。","袈袍不限侵门水，十载何人坐象筵？"],
+        note:"首句暗合江心寺「借地建寺，约定五百年」的传说——相传清了禅师填平两岛建寺时，曾向江中龙王借地为期。" },
+      { title:"孤屿双塔", author:"李孝光", dynasty:"元",
+        lines:["巨鳌擎出梵王宫，塔影东西截断虹。","夜半潮声来枕上，犹疑双铎撼天风。"],
+        note:"「双铎」指塔上悬挂的铜风铃，东西两塔至今仍是江心屿最醒目的地标，1997年被列为世界百座历史文物灯塔之一。" },
+      { title:"孤屿双塔", author:"王叔果", dynasty:"明",
+        lines:["孤屿不与众山俦，屹立江心几百秋。"] },
+      { title:"舟中望孤屿作", author:"江湜", dynasty:"清",
+        lines:["又看孤屿在中流，双塔凌波势欲浮。","天与瓯江自千古，我思谢客不同游。","潮平别浦帆初落，野阔孤飞鸟亦愁。","蓦地乡心来一片，明朝题上孟公楼。"],
+        note:"「孟公楼」即浩然楼，清代曾一度被误称作「孟楼」。诗人乘船夜过孤屿、见双塔浮波，遂生思乡怀古之情。" }
+    ],
+    food:[
+      { name:"灯盏糕", desc:"温州十大名小吃之一，因形似旧时油灯盏得名。大米黄豆磨浆作皮，包裹萝卜丝、猪肉与鸡蛋，鲜猪油炸至金黄，外皮酥脆、内馅鲜香，趁热吃最妙。", img:"images/dengzhangao.jpg" },
+      { name:"温州鱼丸", desc:"与各地鱼丸不同，呈不规则长条状，玉白半透明。以鮸鱼肉手工揉捏而成，Q弹有嚼劲，汤色澄清，佐以米醋、胡椒粉，微酸微辣、鲜味十足。", img:"images/wenzhou-yuwan.jpg" },
+      { name:"松糕", desc:"温州传统名点，以粳米或糯米蒸制，松软香甜，常夹肥肉丁、桂花与红糖。旧时是订婚结婚必备的伴手礼，寓意「步步高升」。", img:"images/songgao.jpg" },
+      { name:"葱油黄鱼", desc:"瓯菜代表作，温州人宴席讲究「无黄鱼不成宴」。新鲜大黄鱼清蒸后铺葱花姜丝、浇热油激香，鱼肉鲜嫩，调味清淡，突出黄鱼本味。" },
+      { name:"凤尾鱼", desc:"瓯江著名特产，尾部分叉形如凤尾，端午前后洄游至江心屿一带产卵，最为肥美，腹内多子，油煎后香脆可口，是佐酒下饭的佳品。" }
+    ],
+    specialty:[
+      { name:"蓝夹缬制品", desc:"以蓝夹缬技艺印染而成的方巾、布艺，图案古朴、蓝白相映，是温州最具辨识度的手作伴手礼之一。" },
+      { name:"瓯绣、瓯塑工艺摆件", desc:"取材于瓯绣、瓯塑两项非遗技艺制成的绣品与彩色浮雕摆件，针法细腻、色泽沉厚，宜作馈赠之选。" }
+    ],
+    heritage:[
+      { name:"蓝夹缬技艺", desc:"传统印染「四缬」技艺之一，被称为「雕版印染的活化石」，2011年列入国家级非物质文化遗产名录。以蓝靛为染液，用两块对称阴刻木板夹紧织物防染印花，起于秦汉、盛于唐宋，如今仅在浙南温州一带留存。" },
+      { name:"瓯塑", desc:"由传统漆艺中的堆漆工艺发展而来，因发源于瓯江流域得名，俗称「彩色浮雕」，2008年列入国家级非物质文化遗产名录，与黄杨木雕、东阳木雕、青田石雕并称「浙江三雕一塑」。" },
+      { name:"瓯绣", desc:"中国六大名绣之一，因产于瓯江流域得名，由唐代锦衣发展而来，2008年列入国家级非物质文化遗产名录。明末清初温州对外交通渐兴，瓯绣博采众长，技艺日趋成熟、自具一格。" },
+      { name:"提线木偶戏", desc:"以泰顺、平阳两地最具代表性，均列入国家级非物质文化遗产名录。泰顺提线木偶戏南宋年间自杭州传入，逢年过节例演不辍；平阳木偶戏形成不晚于宋代，明清时达于鼎盛。" }
+    ],
+    sights:[
+      { name:"江心双塔（东塔·西塔）", desc:"东塔始建于唐咸通十年（869），现高26米，塔顶古榕盘根、四季常绿；西塔始建于宋开宝二年（969），现高32米，42个檐角悬铜风铃。两塔曾作古代航标逾800年，1997年被国际航标协会评为世界百座历史文物灯塔之一。" },
+      { name:"浩然楼", desc:"明万历八年（1580）始建，取文天祥《正气歌》「于人曰浩然」之意命名。清乾隆年间曾被误认作纪念孟浩然而改称「孟楼」，光绪元年（1875）复名。「江心十景」中的「孟楼潮韵」即得名于此。" },
+      { name:"江心寺", desc:"南宋绍兴七年，清了禅师奉诏填平中川两岛建寺，即今江心寺。山门悬叠字联「云朝朝朝朝朝朝朝朝散，潮长长长长长长长长消」，相传为温州籍状元王十朋所撰；王十朋、木待问都曾寄居寺中苦读，先后高中状元。" },
+      { name:"谢公亭", desc:"为纪念山水诗鼻祖谢灵运而建，相传孤屿西山下古亭为其常临江观景处。历代屡有兴废，今亭为1952年所建、1980年重修，六角攒尖顶，黄色琉璃瓦，朱红圆柱。" },
+      { name:"澄鲜阁", desc:"北宋崇宁元年（1102）始建，原名「水陆堂」；明万历十九年（1591）王叔杲取谢灵运「云日相辉映，空水共澄鲜」诗句易名「澄鲜阁」，为历代文人赏景宴饮之所。今阁为清代晚期建筑，两层三间木构楼阁。", img:"images/chengxiange.jpg" },
+      { name:"宋园", desc:"以「六馆一堂」呈现温州南宋人文肌理与宋韵美学，是承载文化展示与交流互动的园林空间，可从中感受温州南宋历史与风雅日常。" },
+      { name:"谢公阁", desc:"为纪念谢灵运新建的三层仿古楼阁，占地约1900平方米，馆内围绕其生平经历、诗文著作及对温州文化的影响布展；二楼回廊视野开阔，可登楼俯瞰江心双塔。" },
+      { name:"山水戏台", desc:"宋元风格仿古戏台，歇山顶木构，斗拱华美，台基花岗岩砌筑，后台设美人靠。温州素有「戏曲故里·南戏发祥地」之称，此台为屿上演艺活动新添了一方丝竹之地。", img:"images/shanshui-xitai.jpg" }
+    ]
+  },
+  {
+    id:"fenglin", name:"枫林镇", region:"温州", type:"宗族古村类 · 千年古镇",
+    x:60, y:30, status:"draft",
+    summary:"楠溪江畔千年古镇，圣旨门楼、书院遗存与碑刻楹联层叠共存，另设二十四节气馆、数字诗路e站等现代展陈。",
+    poems:[], food:[], specialty:[], heritage:[], sights:[ {name:"圣旨门楼", desc:"古镇标志性历史建筑。"} ]
+  },
+  {
+    id:"heyang", name:"鹤阳村", region:"温州", type:"宗族古村类 · 谢灵运后裔",
+    x:52, y:52, status:"draft",
+    summary:"谢灵运后裔聚居古村，祠堂、神牌、古庙楹联留存宗族诗学传承，对内认同强、对外传播相对薄弱。",
+    poems:[], food:[], specialty:[], heritage:[], sights:[]
+  },
+  {
+    id:"pengxi", name:"蓬溪村", region:"温州", type:"宗族古村类 · 谢灵运后裔",
+    x:56, y:58, status:"draft",
+    summary:"与鹤阳村同为谢灵运后裔古村，祠堂楹联、家族诗学文化在地留存明显。",
+    poems:[], food:[], specialty:[], heritage:[], sights:[]
+  },
+  {
+    id:"guyanhuaxiang", name:"古堰画乡 · 通济堰", region:"丽水", type:"山水胜景类 · 水利诗文复合景观",
+    x:33, y:37, status:"draft",
+    summary:"通济堰历代修堰碑刻、古樟群与范成大、汤显祖等历代题咏实景对应，是水利工程与诗文结合的复合型文学景观。",
+    poems:[], food:[ {name:"处州白莲", desc:"丽水传统特产，可结合古堰画乡文旅体验推广。"} ],
+    specialty:[], heritage:[], sights:[ {name:"通济堰", desc:"始建于南朝的古代水利工程，与古樟群共同构成核心景观。"} ]
+  },
+  {
+    id:"xiandu", name:"仙都 · 河阳古民居", region:"丽水", type:"山水胜景类＋宗族古村类",
+    x:18, y:22, status:"draft",
+    summary:"仙都摩崖题刻可与谢灵运、白居易等诗文实景对照；河阳古民居承载义阳诗派与耕读宗族文化。",
+    poems:[], food:[], specialty:[], heritage:[], sights:[ {name:"仙都摩崖题刻", desc:"好溪沿岸历代摩崖石刻群。"} ]
+  },
+  {
+    id:"xiazhang", name:"下樟 · 岩后村", region:"丽水", type:"名人故里类 · 叶绍翁故里",
+    x:14, y:52, status:"draft",
+    summary:"南宋诗人叶绍翁故里，绍翁书院、洗笔池等名人遗迹留存，是名人IP研学与文旅转化的代表点位。",
+    poems:[ { title:"游园不值", author:"叶绍翁", dynasty:"宋",
+      lines:["应怜屐齿印苍苔，小扣柴扉久不开。","春色满园关不住，一枝红杏出墙来。"] } ],
+    food:[], specialty:[], heritage:[], sights:[ {name:"绍翁书院", desc:"纪念叶绍翁的书院遗迹。"}, {name:"洗笔池", desc:"相传为叶绍翁洗笔之处。"} ]
+  }
+];
+
+const TABS = [
+  {key:"poems", label:"诗词", icon:"诗"},
+  {key:"food", label:"美食", icon:"食"},
+  {key:"specialty", label:"特产", icon:"产"},
+  {key:"heritage", label:"非遗", icon:"艺"},
+  {key:"sights", label:"景点", icon:"景"}
+];
+
+/* ============================================================
+   初始化地图标记
+   ============================================================ */
+const mapHotspots = document.getElementById("mapHotspots");
+
+SITE_DATA.forEach(spot => {
+  const btn = document.createElement("button");
+  btn.className = "map-marker" + (spot.status === "draft" ? " draft" : "");
+  btn.style.left = spot.x + "%";
+  btn.style.top = spot.y + "%";
+  btn.setAttribute("aria-label", "打开" + spot.name);
+
+  // 印章文字：取名字第一个字
+  const sealText = spot.name.charAt(0);
+
+  btn.innerHTML = `
+    <span class="seal">${sealText}</span>
+    <span class="marker-name">${spot.name}</span>
+  `;
+
+  btn.addEventListener("click", () => openScene(spot.id));
+  mapHotspots.appendChild(btn);
+});
+
+/* ---- 地图聚焦功能 ---- */
+const mapViewport = document.getElementById("mapViewport");
+const mapGuideBtn = document.getElementById("mapGuideBtn");
+
+if(mapGuideBtn){
+  mapGuideBtn.addEventListener("click", () => {
+    mapViewport.classList.toggle("focus-mode");
+    const isFocused = mapViewport.classList.contains("focus-mode");
+    mapGuideBtn.textContent = isFocused ? "⌖ 还原地图" : "⌖ 双击地图聚焦";
+  });
+}
+
+if(mapViewport){
+  mapViewport.addEventListener("dblclick", () => {
+    mapViewport.classList.toggle("focus-mode");
+    const isFocused = mapViewport.classList.contains("focus-mode");
+    if(mapGuideBtn) mapGuideBtn.textContent = isFocused ? "⌖ 还原地图" : "⌖ 双击地图聚焦";
+  });
+}
+
+/* 聚焦模式样式 */
+const focusStyle = document.createElement("style");
+focusStyle.textContent = `
+  .map-viewport.focus-mode .map-bg {transform:scale(1.5);transition:transform 0.5s var(--ease-out)}
+  .map-viewport.focus-mode .map-hotspots {transform:scale(1.5);transform-origin:center;transition:transform 0.5s var(--ease-out)}
+  .map-viewport.focus-mode .map-label {transform:scale(0.75);transition:transform 0.5s var(--ease-out)}
+`;
+document.head.appendChild(focusStyle);
+
+/* ============================================================
+   顶部导航滚动效果
+   ============================================================ */
+const topbar = document.getElementById("topbar");
+window.addEventListener("scroll", () => {
+  if(window.scrollY > 20){
+    topbar.classList.add("scrolled");
+  } else {
+    topbar.classList.remove("scrolled");
+  }
+});
+
+/* ============================================================
+   沉浸式景点页
+   ============================================================ */
+const sceneOverlay = document.getElementById("sceneOverlay");
+const scenePage = document.getElementById("scenePage");
+const sceneBody = document.getElementById("sceneBody");
+
+let currentSpot = null;
+let currentSceneTab = "view";      // "view" | "detail"
+let currentDetailTab = "poems";    // 详情页内的标签
+
+function getHeroImage(spot){
+  if(spot.heroImage) return spot.heroImage;
+  for(const p of (spot.poems || [])){ if(p.photo) return p.photo; }
+  for(const s of (spot.sights || [])){ if(s.img) return s.img; }
+  return "";
+}
+
+function renderSceneHero(spot){
+  const img = getHeroImage(spot);
+  if(img){
+    return `<img src="${img}" alt="${spot.name}风光" loading="eager">`;
+  }
+  return `<div style="position:absolute;inset:0;background:linear-gradient(135deg,#d7d0b9,#c2b187);display:grid;place-items:center;font-family:var(--font-brush);font-size:1.8rem;color:rgba(77,61,42,0.5);letter-spacing:0.16em;">山水入画 · 风光图待补充</div>`;
+}
+
+function renderTabContent(spot, key){
+  if(key === "poems"){
+    if(!spot.poems || !spot.poems.length) return emptyState("诗词");
+    return spot.poems.map(p => `
+      <div class="poem-card">
+        <div class="poem-header">
+          <div class="poem-title">《${p.title}》</div>
+          <div class="poem-meta">${p.dynasty} · ${p.author}</div>
+        </div>
+        <div class="poem-body">
+          <div class="poem-verses">
+            ${p.lines.map(l => `<p>${l}</p>`).join("")}
+            ${p.note ? `<div class="poem-note">${p.note}</div>` : ""}
+          </div>
+          ${p.photo ? `
+            <div class="poem-photo">
+              <img src="${p.photo}" alt="${p.photoCaption || p.title}" loading="lazy">
+              <div class="photo-cap">${p.photoCaption || "今日实景"}</div>
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  const labels = {food:"美食", specialty:"特产", heritage:"非遗", sights:"景点"};
+  const list = spot[key];
+  if(!list || !list.length) return emptyState(labels[key]);
+
+  return `<div class="item-grid">${list.map(i => `
+    <div class="item-card ${i.img ? 'has-img' : ''}">
+      ${i.img ? `<img src="${i.img}" alt="${i.name}" class="item-card-img" loading="lazy">` : ""}
+      <div>
+        <div class="item-card-title">${i.name}</div>
+        <div class="item-card-desc">${i.desc}</div>
+      </div>
+    </div>
+  `).join("")}</div>`;
+}
+
+function emptyState(label){
+  return `<div class="empty-state">该点位的 <span class="highlight">${label}</span> 信息尚待补充<br><small>结构已就绪，可直接在数据源中追加内容</small></div>`;
+}
+
+function renderDetail(spot){
+  const img = getHeroImage(spot);
+  const sidebar = img
+    ? `<div class="detail-sidebar">
+        <img src="${img}" alt="${spot.name}风光" class="detail-sidebar-img" loading="lazy">
+        <div class="detail-sidebar-note">${spot.heroCaption || spot.name + " · 文学景观实景"}</div>
+       </div>`
+    : `<div class="detail-sidebar">
+        <div style="width:100%;height:200px;border-radius:12px;background:linear-gradient(135deg,#d7d0b9,#c2b187);display:grid;place-items:center;font-family:var(--font-brush);font-size:1.2rem;color:rgba(77,61,42,0.5);">风光图待补充</div>
+        <div class="detail-sidebar-note">可在数据源中补入该点位横版风景图</div>
+       </div>`;
+
+  return `
+    <div class="detail-layout">
+      ${sidebar}
+      <div class="detail-main">
+        <div class="scene-summary">${spot.summary}</div>
+        <div class="content-tabs" id="detailTabs">
+          ${TABS.map(t => `
+            <button class="content-tab ${t.key === currentDetailTab ? 'active' : ''}" data-detail-tab="${t.key}">
+              <span class="tab-icon">${t.icon}</span>
+              ${t.label}
+            </button>
+          `).join("")}
+        </div>
+        <div id="detailPanels">
+          ${renderTabContent(spot, currentDetailTab)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function drawScene(){
+  if(!currentSpot) return;
+  const spot = currentSpot;
+
+  sceneBody.innerHTML = `
+    <div class="scene-title-area">
+      <div class="scene-tag">${spot.region} · ${spot.type}</div>
+      <h2>${spot.name}</h2>
+      <p>沿江寻诗 · 以景入文 · 以文见人</p>
+    </div>
+
+    <div class="scene-tabs">
+      <button class="scene-tab ${currentSceneTab === 'view' ? 'active' : ''}" data-scene-tab="view">${spot.name}风光</button>
+      <button class="scene-tab ${currentSceneTab === 'detail' ? 'active' : ''}" data-scene-tab="detail">详情介绍</button>
+    </div>
+
+    <div class="scene-view ${currentSceneTab === 'view' ? 'active' : ''}">
+      <div class="scene-hero">
+        ${renderSceneHero(spot)}
+        <div class="scene-hero-caption">${spot.heroCaption || spot.name + " · 瓯江诗路文学景观"}</div>
+      </div>
+      <div class="action-bar">
+        <button class="action-btn" id="goDetailBtn">进入文学景观详情 →</button>
+      </div>
+    </div>
+
+    <div class="scene-view ${currentSceneTab === 'detail' ? 'active' : ''}">
+      ${renderDetail(spot)}
+    </div>
+  `;
+
+  // 绑定标签页事件
+  sceneBody.querySelectorAll("[data-scene-tab]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentSceneTab = btn.dataset.sceneTab;
+      drawScene();
+      // 滚动到顶部
+      scenePage.scrollTo({top: 0, behavior: "smooth"});
+    });
+  });
+
+  // 进入详情按钮
+  const goBtn = sceneBody.querySelector("#goDetailBtn");
+  if(goBtn){
+    goBtn.addEventListener("click", () => {
+      currentSceneTab = "detail";
+      drawScene();
+      scenePage.scrollTo({top: 0, behavior: "smooth"});
+    });
+  }
+
+  // 详情页内标签
+  sceneBody.querySelectorAll("[data-detail-tab]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentDetailTab = btn.dataset.detailTab;
+      // 只重新渲染详情面板，避免整个页面闪烁
+      const panel = sceneBody.querySelector("#detailPanels");
+      const tabs = sceneBody.querySelector("#detailTabs");
+      if(panel) panel.innerHTML = renderTabContent(spot, currentDetailTab);
+      if(tabs){
+        tabs.querySelectorAll(".content-tab").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+      }
+    });
+  });
+}
+
+function openScene(id){
+  const spot = SITE_DATA.find(s => s.id === id);
+  if(!spot) return;
+
+  currentSpot = spot;
+  currentSceneTab = "view";
+  currentDetailTab = "poems";
+
+  drawScene();
+
+  sceneOverlay.classList.add("open");
+  scenePage.classList.add("open");
+  scenePage.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeScene(){
+  sceneOverlay.classList.remove("open");
+  scenePage.classList.remove("open");
+  scenePage.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+sceneOverlay.addEventListener("click", closeScene);
+document.getElementById("sceneBack").addEventListener("click", closeScene);
+document.getElementById("sceneClose").addEventListener("click", closeScene);
+
+/* ============================================================
+   键盘支持
+   ============================================================ */
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape"){
+    if(scenePage.classList.contains("open")) closeScene();
+  }
+});
+
+/* ============================================================
+   导航按钮（预留功能）
+   ============================================================ */
+document.querySelectorAll("[data-nav]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-nav]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const nav = btn.dataset.nav;
+    if(nav === "map"){
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+    // "poems" 和 "about" 可以后续扩展
+  });
+});
+
+/* ============================================================
+   页面加载完成后的入场动画
+   ============================================================ */
+window.addEventListener("load", () => {
+  document.body.style.opacity = "0";
+  document.body.style.transition = "opacity 0.5s ease";
+  requestAnimationFrame(() => {
+    document.body.style.opacity = "1";
+  });
+
+  // 标记点依次入场动画
+  const markers = document.querySelectorAll(".map-marker");
+  markers.forEach((m, i) => {
+    m.style.opacity = "0";
+    m.style.transform = "translate(-50%, -50%) scale(0)";
+    m.style.transition = "all 0.4s var(--ease-out)";
+    setTimeout(() => {
+      m.style.opacity = "1";
+      m.style.transform = "translate(-50%, -50%) scale(1)";
+    }, 600 + i * 120);
+  });
+});
+</script>
+</body>
+</html>
